@@ -8,6 +8,7 @@ class Processor:
 
 @dataclass
 class _ProcessingStage:
+    pass
 
 class ProcessingStage(_ProcessingStage):
     name: str
@@ -17,23 +18,42 @@ class ProcessingStage(_ProcessingStage):
         ctx.register_stage(self)
 
 
+class CompositeStage(ProcessingStage):
+    def __init__(self, ctx: Pipeline, pipeline: Pipeline, **kw):
+        super().__init__(**kw)
+
+        for step in pipeline.iter_steps():
+            ctx.register_stage(step.replace(name=f"{pipeline.name}-{step.name}"))
+
 class Source(ProcessingStage):
     pass
 
 class Transform(ProcessingStage):
     inputs: list[ProcessingStage]
 
+class MapProcessor(Processor):
+    def __init__(self, config: Map):
+        self.config = config
+        module_name, func_name = config.func.rsplit('.', 1)
+        self.func = getattr(__import__(module_name), func_name)
+
+    def process_message(self, msg):
+        new_value = self.func(msg)
+        return [new_value]
+
+class ReduceProcessor(Processor):
+    ...
+
 class Map(Transform):
     func: str
+    processor = MapProcessor
+
+class Reduce(Transform):
+    func: str
+    processor = ReduceProcessor
 
 class KafkaSource(Source):
     topic: str
-
-class ClickhouseSink(ProcessingStage):
-    table: str
-
-class BigquerySink(ProcessingStage):
-    table: str
 
 class Pipeline:
     def __init__(self, name):
