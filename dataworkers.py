@@ -7,19 +7,24 @@ class ClickhouseSink(CompositeStep):
     def __init__(self, ctx, **kw):
         pipeline = Pipeline(name=kw["name"])
 
+        within_worker_start = WithinWorker()
+
         reduce = Reduce(
             inputs=kw['inputs'],
-            lambda acc, x: acc.add(x),
+            create_acculumator=lambda: ClickhouseClient(),
+            lambda client, row: client.write_row(row),
             ctx=pipeline,
             name='reduce',
         )
 
         Map(
             inputs=[reduce],
-            lambda x: print("waiting for clickhouse"),
+            lambda client: client.wait_for_ok(),
             ctx=pipeline,
             name='map',
         )
+
+        within_worker_end = AcrossWorkers()
 
         super().__init__(ctx, pipeline, **kw)
 

@@ -1,0 +1,4 @@
+overrides:
+  mypipeline:
+    errors-clickhouse-writer:
+      inserts_per_sec: 2

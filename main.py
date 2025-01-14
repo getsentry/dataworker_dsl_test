@@ -13,6 +13,7 @@ transform = Map(
     ctx=ctx,
     func='sentry.ingest.something.process_message',
     inputs=[source],
+    want_gpu=True,
 )
 
 ch_sink = ClickhouseSink(
