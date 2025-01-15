@@ -55,6 +55,9 @@ class Reduce(Transform):
 class KafkaSource(Source):
     topic: str
 
+# TODO: group by!! we want multiple aggregates, one reduce state
+# per trace
+
 class Pipeline:
     def __init__(self, name):
         self.stages = []
