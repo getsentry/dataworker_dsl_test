@@ -13,19 +13,21 @@ transform = Map(
     ctx=ctx,
     func='sentry.ingest.something.process_message',
     inputs=[source],
-    want_gpu=True,
+    # want_gpu=True,
 )
 
-ch_sink = ClickhouseSink(
+# TODO: we should probably have output here and not call that
+# Sink
+ClickhouseSink(
     ctx=ctx,
     name='errors-clickhouse-writer',
     inputs=[transform],
     table='errors',
 )
 
-bigquery_sink = BigquerySink(
-    name='errors-bq',
+BigquerySink(
     ctx=ctx,
+    name='errors-bq',
     inputs=[transform],
     table='sbc_errors',
 )
