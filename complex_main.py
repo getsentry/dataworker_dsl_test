@@ -36,7 +36,8 @@ synchronizer = Synchronizer(
     synchronize_with=[transform],
     input_key=['foo'],
     synchronization_key=['another_foo']
-    # TODO: keys/aggregation func
+    func=p95,
+    window_size=10,
 )
 
 # alternative interpretations of "synchronizer":

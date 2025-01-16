@@ -12,11 +12,12 @@ class AggregateChunks(CompositeStep):
         # TraceBuffer([1, 3])
         # TraceBuffer([2])
         reduce = Reduce(
+            storage_type='redis',
             # group_by default = group by whatever the runtime
             # wants
-            # group_by="random()",
+            group_by="trace_id",
             inputs=kw['inputs'],
-            create_acculumator=MessageProcessor,
+            create_acculumator=TraceBuffer,
             lambda acc, row: acc.add_message(row),
             # max_time=100,
             # max_size=100,
