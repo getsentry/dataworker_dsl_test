@@ -1,4 +1,5 @@
 from typing import Optional
+from graph_builder import PipelineGraph
 from pyflink.datastream import StreamExecutionEnvironment
 from pyflink.datastream.window import SlidingProcessingTimeWindows
 from pyflink.datastream.connectors import FlinkKafkaConsumer
@@ -7,7 +8,7 @@ from pyflink.common import Time
 
 class FlinkStreamBuilder:
 
-    def __init__(self, pipeline_steps, graph, config: Optional[dict]):
+    def __init__(self, pipeline_steps, graph: PipelineGraph, config: Optional[dict]):
         self.pipeline_map = pipeline_steps
         self.graph = graph
 
@@ -20,7 +21,7 @@ class FlinkStreamBuilder:
 
     def _set_sources(self):
 
-        sources = self.graph.get_next_steps()
+        sources = self.graph.next_steps()
         steps = [self.pipeline_map[source] for source in sources]
 
         kafka_consumer = FlinkKafkaConsumer(
@@ -38,13 +39,18 @@ class FlinkStreamBuilder:
 
         return stream
 
+
+    # This is just the simplest way to conceptualize
+    # One way to implement in practice would be
+    # to create an ordered Pipeline representation using the graph
+    # Write a Visitor which will iteratively build the Flink stream
     def build_stream(self):
 
         stream = self._set_sources()
 
         while True:
 
-            steps = self.graph.get_next_steps()
+            steps = self.graph.next_steps()
 
             # we're done traversing the graph
             if not steps:

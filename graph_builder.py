@@ -1,5 +1,10 @@
 from collections import defaultdict, deque
 
+
+# The following implementation uses 
+# the name of the step as the node representation
+# Use a hashable Node representation
+
 class PipelineGraph:
 
     def __init__(self, pipeline_steps):
@@ -27,7 +32,7 @@ class PipelineGraph:
                     self.indegrees[step_name] += 1     
 
     # clear the queue and return, populate the queue with next steps
-    def get_next_steps(self):
+    def next_steps(self):
         next_steps = []
 
         source_count = len(self.zero_indegree_queue)
@@ -42,3 +47,10 @@ class PipelineGraph:
                     self.zero_indegree_queue.append(neighbor)
 
         return next_steps
+    
+
+    # some function to refresh graph state
+
+
+# One could call next_step() on the graph and create another Pipeline 
+# representation, which can have its own Visitor class
